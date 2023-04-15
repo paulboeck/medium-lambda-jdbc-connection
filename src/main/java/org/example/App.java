@@ -4,13 +4,19 @@
 package org.example;
 
 import com.amazonaws.services.lambda.runtime.Context;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 public class App {
-    public static void main(String[] args) {
-    }
+    static final String HOST = "terraform-20230415151618478500000002.czqqiudecsvk.us-east-2.rds.amazonaws.com";
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
+    static final String DB_URL = String.format("jdbc:mysql://%s/example-db", HOST);
+    static final String USER = "paulboeck";
 
-    public String getGreeting() {
-        return "Hello World!";
+    public static void main(String[] args) {
     }
 
     /**
@@ -19,6 +25,26 @@ public class App {
      * @return a string containing a message
      */
     public String handleRequest(Context context) {
-        return getGreeting();
+        String password = "allhopeisgone";
+        String ret = "Could not connect to database";
+        try {
+            Class.forName(JDBC_DRIVER);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+
+        try(Connection conn = DriverManager.getConnection(DB_URL,USER,password);
+            Statement stmt = conn.createStatement(); ) {
+            try( ResultSet rs = stmt.executeQuery("SELECT 'Hello World!' FROM (SELECT 1) AS dummy")) {
+                while(rs.next()) {
+                    ret = rs.getString(1);
+                }
+            } catch(Exception e) {
+                return ("ERROR");
+            }
+        } catch(Exception e) {
+            return ("ERROR");
+        }
+        return (ret);
     }
 }

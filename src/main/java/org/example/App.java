@@ -3,18 +3,28 @@
  */
 package org.example;
 
+import com.amazonaws.regions.Region;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
+import com.amazonaws.services.secretsmanager.AWSSecretsManager;
+import com.amazonaws.services.secretsmanager.AWSSecretsManagerClient;
+import com.amazonaws.services.secretsmanager.model.GetSecretValueRequest;
+import com.amazonaws.services.secretsmanager.model.GetSecretValueResult;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+/**
+ * This class implements a simple Lambda function that connects to an RDS database
+ */
 public class App {
-    static final String HOST = "terraform-20230415151618478500000002.czqqiudecsvk.us-east-2.rds.amazonaws.com";
+    static final String HOST = "example.czqqiudecsvk.us-east-2.rds.amazonaws.com";
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    static final String DB_URL = String.format("jdbc:mysql://%s/example-db", HOST);
+    static final String DB_URL = String.format("jdbc:mysql://%s/example", HOST);
     static final String USER = "paulboeck";
+    static final String SECRET_NAME = "rds-password";
 
     public static void main(String[] args) {
     }
@@ -25,14 +35,19 @@ public class App {
      * @return a string containing a message
      */
     public String handleRequest(Context context) {
-        String password = "allhopeisgone";
         String ret = "Could not connect to database";
+
+        // Get the password from AWS Secrets Manager
+        String password = getSecret(SECRET_NAME);
+
+        // Initialize the dataabase driver
         try {
             Class.forName(JDBC_DRIVER);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
 
+        // Connect to the database and run a query
         try(Connection conn = DriverManager.getConnection(DB_URL,USER,password);
             Statement stmt = conn.createStatement(); ) {
             try( ResultSet rs = stmt.executeQuery("SELECT 'Hello World!' FROM (SELECT 1) AS dummy")) {
@@ -40,11 +55,43 @@ public class App {
                     ret = rs.getString(1);
                 }
             } catch(Exception e) {
+                e.printStackTrace();
                 return ("ERROR");
             }
         } catch(Exception e) {
+            e.printStackTrace();
             return ("ERROR");
         }
         return (ret);
+    }
+
+    /**
+     * Get the secret from AWS Secrets Manager
+     * @return the secret
+     */
+    public static String getSecret(String secretName) {
+        Region region = Regions.getCurrentRegion();
+
+        // Create a Secrets Manager client in US East 2
+        AWSSecretsManager client = AWSSecretsManagerClient.builder()
+            .withRegion(Regions.US_EAST_2)
+            .build();
+
+        // Create the request used to retrieve the secret
+        GetSecretValueRequest getSecretValueRequest = new GetSecretValueRequest()
+            .withSecretId(secretName);
+
+        GetSecretValueResult getSecretValueResult;
+
+        try {
+            getSecretValueResult = client.getSecretValue(getSecretValueRequest);
+        } catch (Exception e) {
+            // For a list of exceptions thrown, see
+            // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+            throw e;
+        }
+
+        // Get the secret value and return it
+        return getSecretValueResult.getSecretString();
     }
 }

@@ -1,5 +1,5 @@
 resource "aws_secretsmanager_secret" "example" {
-  name                    = "weather-tracker-rds-password"
+  name                    = "rds-password"
   recovery_window_in_days = 0 // Overriding the default recovery window of 30 days
 }
 

@@ -19,6 +19,8 @@ resource "aws_security_group_rule" "example" {
 
 resource "aws_db_instance" "example" {
   engine                 = "mysql"
+  db_name                = "example"
+  identifier             = "example"
   engine_version         = "8.0.32"
   instance_class         = "db.t2.micro"
   allocated_storage      = 20

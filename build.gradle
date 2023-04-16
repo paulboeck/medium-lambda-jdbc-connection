@@ -17,12 +17,11 @@ repositories {
 
 dependencies {
     // AWS dependencies
-    implementation 'com.amazonaws:aws-lambda-java-core:1.1.0'
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.2'
+    implementation 'com.amazonaws:aws-java-sdk-secretsmanager:1.12.449'
 
-    // Test dependencies
-    testImplementation 'org.junit.jupiter:junit-jupiter:5.8.2'
-    testImplementation 'org.mockito:mockito-core:4.5.1'
-    testImplementation 'org.mockito:mockito-junit-jupiter:4.5.1'
+    // MySQL dependencies
+    implementation 'com.mysql:mysql-connector-j:8.0.32'
 }
 
 test {

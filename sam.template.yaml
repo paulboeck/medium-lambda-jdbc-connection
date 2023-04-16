@@ -13,3 +13,5 @@ Resources:
       Timeout: 60
       PackageType: Zip
       CodeUri: '.'
+      #Policies:
+        #- SecretsManagerReadWrite

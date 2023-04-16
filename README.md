@@ -7,6 +7,8 @@ then executes a query against the database and returns the results.
 There is no trigger defined for the lambda so it can only be invoked by using the Test feature in
 the AWS Lambda console or via the SAM CLI.
 
+The [Medium.com article](https://medium.com/@paulboeck/aws-lambda-tutorial-using-secrets-manager-and-java-sdk-to-connect-to-mysql-8fcf3550dd86?source=friends_link&sk=deb569993db42885b2bd73be8ec1f721) that accompanies this project provides more details on its contents.
+
 ## Assumptions 
 - you have installed the AWS CLI and configured it with your AWS credentials 
 - you have installed terraform

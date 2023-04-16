@@ -20,10 +20,13 @@ import java.sql.Statement;
  * This class implements a simple Lambda function that connects to an RDS database
  */
 public class App {
-    static final String HOST = "example.czqqiudecsvk.us-east-2.rds.amazonaws.com";
+    // UPDATE the HOST string to match your RDS endpoint
+    static final String HOST = "<your rds endpoint>";
     static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     static final String DB_URL = String.format("jdbc:mysql://%s/example", HOST);
-    static final String USER = "paulboeck";
+    // Update the USER string to match the username you supplied when
+    // creating your database
+    static final String USER = "<your db username>";
     static final String SECRET_NAME = "rds-password";
 
     public static void main(String[] args) {

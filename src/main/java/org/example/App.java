@@ -29,17 +29,9 @@ public class App {
     static final String USER = "<your db username>";
     static final String SECRET_NAME = "rds-password";
 
-    public static void main(String[] args) {
-    }
+    static final Connection conn;
 
-    /**
-     * Lambda handler method
-     * @param context the Lambda request context
-     * @return a string containing a message
-     */
-    public String handleRequest(Context context) {
-        String ret = "Could not connect to database";
-
+    static {
         // Get the password from AWS Secrets Manager
         String password = getSecret(SECRET_NAME);
 
@@ -50,22 +42,49 @@ public class App {
             throw new RuntimeException(e);
         }
 
-        // Connect to the database and run a query
-        try(Connection conn = DriverManager.getConnection(DB_URL,USER,password);
-            Statement stmt = conn.createStatement(); ) {
+        try {
+            conn = DriverManager.getConnection(DB_URL,USER,password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    /**
+     * Lambda handler method
+     * @param context the Lambda request context
+     * @return a string containing a message
+     */
+    public String handleRequest(Context context) {
+        String ret = getString();
+        if (ret == null) {
+            return ("ERROR");
+        }
+        return (ret);
+    }
+
+    /**
+     * Run a simple query to test the connection
+     * @return the result of the query
+     */
+    private String getString() {
+        String ret = "Could not connect to database";
+
+        // Run a simple query to test the connection
+        try (Statement stmt = conn.createStatement(); ) {
             try( ResultSet rs = stmt.executeQuery("SELECT 'Hello World!' FROM (SELECT 1) AS dummy")) {
                 while(rs.next()) {
                     ret = rs.getString(1);
                 }
             } catch(Exception e) {
                 e.printStackTrace();
-                return ("ERROR");
+                return null;
             }
-        } catch(Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
-            return ("ERROR");
+            return null;
         }
-        return (ret);
+        return ret;
     }
 
     /**

@@ -40,4 +40,4 @@ build
 *.tfstate
 /terraform/.terraform
 .terraform.lock.hcl
-
+/terraform/terraform.tfstate.backup
